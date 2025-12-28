@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Johnny - Animation Showcase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&family=Audiowide&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            overflow-x: hidden;
+        }
+
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        #alphabet-container {
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: 0.5rem;
+            margin-bottom: 4rem;
+        }
+
+        #alphabet-container span {
+            display: inline-block;
+            opacity: 0.2;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        #alphabet-container span.highlight {
+            color: #ff0000;
+            opacity: 1;
+            text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+            transform: scale(1.3);
+        }
+
+        #enter-button {
+            padding: 1.5rem 4rem;
+            font-size: 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff0000, #cc0000);
+            color: #fff;
+            border: 2px solid #ff0000;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+
+        #enter-button:hover {
+            background: linear-gradient(45deg, #cc0000, #ff0000);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+            transform: translateY(-5px);
+        }
+
+        #enter-button.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #main-content {
+            display: none;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        #main-content.active {
+            display: block;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 4rem;
+            margin: 2rem 0;
+            background: linear-gradient(45deg, #ff0000, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+
+        #grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .anim-button {
+            padding: 2rem;
+            background: linear-gradient(135deg, #1a0000, #000);
+            border: 2px solid #ff0000;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .anim-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 0, 0, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .anim-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .anim-button:hover {
+            border-color: #fff;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+            transform: translateY(-5px);
+        }
+
+        .anim-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        #animation-display {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #animation-display.active {
+            display: flex;
+        }
+
+        #back-button {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 2rem;
+            background: rgba(255, 0, 0, 0.8);
+            border: 2px solid #fff;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 10000;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            transition: all 0.3s ease;
+        }
+
+        #back-button:hover {
+            background: rgba(255, 0, 0, 1);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+        }
+
+        .johnny-display {
+            font-size: 8rem;
+            font-family: 'Audiowide', cursive;
+            font-weight: 900;
+            letter-spacing: 1rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .anim-button {
+            animation: fadeInUp 0.6s ease backwards;
+        }
+
+        .anim-button:nth-child(1) { animation-delay: 0.05s; }
+        .anim-button:nth-child(2) { animation-delay: 0.1s; }
+        .anim-button:nth-child(3) { animation-delay: 0.15s; }
+        .anim-button:nth-child(4) { animation-delay: 0.2s; }
+        .anim-button:nth-child(5) { animation-delay: 0.25s; }
+        .anim-button:nth-child(6) { animation-delay: 0.3s; }
+        .anim-button:nth-child(7) { animation-delay: 0.35s; }
+        .anim-button:nth-child(8) { animation-delay: 0.4s; }
+        .anim-button:nth-child(9) { animation-delay: 0.45s; }
+        .anim-button:nth-child(10) { animation-delay: 0.5s; }
+        .anim-button:nth-child(11) { animation-delay: 0.55s; }
+        .anim-button:nth-child(12) { animation-delay: 0.6s; }
+        .anim-button:nth-child(13) { animation-delay: 0.65s; }
+        .anim-button:nth-child(14) { animation-delay: 0.7s; }
+        .anim-button:nth-child(15) { animation-delay: 0.75s; }
+        .anim-button:nth-child(16) { animation-delay: 0.8s; }
+        .anim-button:nth-child(17) { animation-delay: 0.85s; }
+        .anim-button:nth-child(18) { animation-delay: 0.9s; }
+        .anim-button:nth-child(19) { animation-delay: 0.95s; }
+        .anim-button:nth-child(20) { animation-delay: 1s; }
+        .anim-button:nth-child(21) { animation-delay: 1.05s; }
+        .anim-button:nth-child(22) { animation-delay: 1.1s; }
+        .anim-button:nth-child(23) { animation-delay: 1.15s; }
+        .anim-button:nth-child(24) { animation-delay: 1.2s; }
+        .anim-button:nth-child(25) { animation-delay: 1.25s; }
+
+        @keyframes glitchAnim {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-5px, 5px); }
+            40% { transform: translate(-5px, -5px); }
+            60% { transform: translate(5px, 5px); }
+            80% { transform: translate(5px, -5px); }
+        }
+
+        @keyframes neonPulse {
+            0%, 100% { 
+                text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000, 0 0 40px #ff0000;
+            }
+            50% { 
+                text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000, 0 0 40px #ff0000, 0 0 50px #ff0000, 0 0 60px #ff0000;
+            }
+        }
+
+        @keyframes waveAnim {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+
+        @keyframes rotateAnim {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes scaleAnim {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+
+        @keyframes bounceAnim {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-50px); }
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes slideInFromLeft {
+            from { transform: translateX(-100vw); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes slideInFromRight {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes flipAnim {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        @keyframes matrixRain {
+            0% { transform: translateY(-100vh); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        @keyframes colorShift {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes explode {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes spiral {
+            from { transform: rotate(0deg) translateX(0); }
+            to { transform: rotate(720deg) translateX(200px); }
+        }
+
+        @keyframes pixelate {
+            0%, 100% { filter: blur(0px); }
+            50% { filter: blur(10px); }
+        }
+
+        .anim1 .johnny-display span { animation: glitchAnim 0.3s infinite; }
+        .anim1 .johnny-display span:nth-child(1) { animation-delay: 0s; }
+        .anim1 .johnny-display span:nth-child(2) { animation-delay: 0.1s; }
+        .anim1 .johnny-display span:nth-child(3) { animation-delay: 0.2s; }
+        .anim1 .johnny-display span:nth-child(4) { animation-delay: 0.3s; }
+        .anim1 .johnny-display span:nth-child(5) { animation-delay: 0.4s; }
+        .anim1 .johnny-display span:nth-child(6) { animation-delay: 0.5s; }
+
+        .anim2 .johnny-display { animation: neonPulse 1.5s infinite; color: #ff0000; }
+
+        .anim3 .johnny-display span { display: inline-block; animation: waveAnim 1s infinite; }
+        .anim3 .johnny-display span:nth-child(1) { animation-delay: 0s; }
+        .anim3 .johnny-display span:nth-child(2) { animation-delay: 0.1s; }
+        .anim3 .johnny-display span:nth-child(3) { animation-delay: 0.2s; }
+        .anim3 .johnny-display span:nth-child(4) { animation-delay: 0.3s; }
+        .anim3 .johnny-display span:nth-child(5) { animation-delay: 0.4s; }
+        .anim3 .johnny-display span:nth-child(6) { animation-delay: 0.5s; }
+
+        .anim4 .johnny-display { animation: rotateAnim 3s linear infinite; }
+
+        .anim5 .johnny-display { animation: scaleAnim 2s infinite; }
+
+        .anim6 .johnny-display span { display: inline-block; animation: bounceAnim 1s infinite; }
+        .anim6 .johnny-display span:nth-child(1) { animation-delay: 0s; }
+        .anim6 .johnny-display span:nth-child(2) { animation-delay: 0.1s; }
+        .anim6 .johnny-display span:nth-child(3) { animation-delay: 0.2s; }
+        .anim6 .johnny-display span:nth-child(4) { animation-delay: 0.3s; }
+        .anim6 .johnny-display span:nth-child(5) { animation-delay: 0.4s; }
+        .anim6 .johnny-display span:nth-child(6) { animation-delay: 0.5s; }
+
+        .anim7 .johnny-display { animation: fadeInOut 3s infinite; }
+
+        .anim8 .johnny-display span { display: inline-block; animation: slideInFromLeft 1s; }
+        .anim8 .johnny-display span:nth-child(1) { animation-delay: 0s; }
+        .anim8 .johnny-display span:nth-child(2) { animation-delay: 0.1s; }
+        .anim8 .johnny-display span:nth-child(3) { animation-delay: 0.2s; }
+        .anim8 .johnny-display span:nth-child(4) { animation-delay: 0.3s; }
+        .anim8 .johnny-display span:nth-child(5) { animation-delay: 0.4s; }
+        .anim8 .johnny-display span:nth-child(6) { animation-delay: 0.5s; }
+
+        .anim9 .johnny-display span { display: inline-block; animation: slideInFromRight 1s; }
+        .anim9 .johnny-display span:nth-child(1) { animation-delay: 0s; }
+        .anim9 .johnny-display span:nth-child(2) { animation-delay: 0.1s; }
+        .anim9 .johnny-display span:nth-child(3) { animation-delay: 0.2s; }
+        .anim9 .johnny-display span:nth-child(4) { animation-delay: 0.3s; }
+        .anim9 .johnny-display span:nth-child(5) { animation-delay: 0.4s; }
+        .anim9 .johnny-display span:nth-child(6) { animation-delay: 0.5s; }
+
+        .anim10 .johnny-display { animation: flipAnim 2s infinite; }
+
+        .anim11 .johnny-display { animation: shake 0.5s infinite; }
+
+        .anim12 .johnny-display { animation: colorShift 5s linear infinite; color: #ff0000; }
+
+        .anim13 .johnny-display { animation: explode 2s infinite; }
+
+        .anim14 .johnny-display span { display: inline-block; animation: rotateAnim 2s linear infinite; }
+
+        .anim15 .johnny-display {
+            background: linear-gradient(90deg, #ff0000, #fff, #ff0000);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s linear infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .anim16 .johnny-display span {
+            display: inline-block;
+            animation: flipAnim 1.5s infinite;
+        }
+        .anim16 .johnny-display span:nth-child(1) { animation-delay: 0s; }
+        .anim16 .johnny-display span:nth-child(2) { animation-delay: 0.2s; }
+        .anim16 .johnny-display span:nth-child(3) { animation-delay: 0.4s; }
+        .anim16 .johnny-display span:nth-child(4) { animation-delay: 0.6s; }
+        .anim16 .johnny-display span:nth-child(5) { animation-delay: 0.8s; }
+        .anim16 .johnny-display span:nth-child(6) { animation-delay: 1s; }
+
+        .anim17 .johnny-display {
+            text-shadow: 
+                0 0 10px #ff0000,
+                0 0 20px #ff0000,
+                0 0 30px #ff0000,
+                0 0 40px #ff0000,
+                0 0 70px #ff0000,
+                0 0 80px #ff0000,
+                0 0 100px #ff0000;
+            animation: neonFlicker 1.5s infinite;
+        }
+
+        @keyframes neonFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 
+                    0 0 10px #ff0000,
+                    0 0 20px #ff0000,
+                    0 0 30px #ff0000,
+                    0 0 40px #ff0000,
+                    0 0 70px #ff0000,
+                    0 0 80px #ff0000,
+                    0 0 100px #ff0000;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+            }
+        }
+
+        .anim18 .johnny-display {
+            perspective: 1000px;
+            animation: rotate3D 4s infinite;
+        }
+
+        @keyframes rotate3D {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            25% { transform: rotateX(180deg) rotateY(0deg); }
+            50% { transform: rotateX(180deg) rotateY(180deg); }
+            75% { transform: rotateX(0deg) rotateY(180deg); }
+            100% { transform: rotateX(0deg) rotateY(0deg); }
+        }
+
+        .anim19 .johnny-display span {
+            display: inline-block;
+            animation: rainbowText 2s linear infinite;
+        }
+        .anim19 .johnny-display span:nth-child(1) { animation-delay: 0s; }
+        .anim19 .johnny-display span:nth-child(2) { animation-delay: 0.3s; }
+        .anim19 .johnny-display span:nth-child(3) { animation-delay: 0.6s; }
+        .anim19 .johnny-display span:nth-child(4) { animation-delay: 0.9s; }
+        .anim19 .johnny-display span:nth-child(5) { animation-delay: 1.2s; }
+        .anim19 .johnny-display span:nth-child(6) { animation-delay: 1.5s; }
+
+        @keyframes rainbowText {
+            0% { color: #ff0000; }
+            17% { color: #ff7700; }
+            33% { color: #ffff00; }
+            50% { color: #00ff00; }
+            67% { color: #0000ff; }
+            83% { color: #ff00ff; }
+            100% { color: #ff0000; }
+        }
+
+        .anim20 .johnny-display {
+            animation: tvStatic 0.1s infinite, scaleAnim 2s infinite;
+            filter: contrast(2) brightness(1.5);
+        }
+
+        @keyframes tvStatic {
+            0% { transform: translate(1px, -1px); }
+            25% { transform: translate(-1px, 1px); }
+            50% { transform: translate(1px, 1px); }
+            75% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, -1px); }
+        }
+
+        .anim21 .johnny-display span {
+            display: inline-block;
+            animation: swing 1s infinite;
+        }
+        .anim21 .johnny-display span:nth-child(1) { animation-delay: 0s; }
+        .anim21 .johnny-display span:nth-child(2) { animation-delay: 0.1s; }
+        .anim21 .johnny-display span:nth-child(3) { animation-delay: 0.2s; }
+        .anim21 .johnny-display span:nth-child(4) { animation-delay: 0.3s; }
+        .anim21 .johnny-display span:nth-child(5) { animation-delay: 0.4s; }
+        .anim21 .johnny-display span:nth-child(6) { animation-delay: 0.5s; }
+
+        @keyframes swing {
+            20% { transform: rotate(15deg); }
+            40% { transform: rotate(-10deg); }
+            60% { transform: rotate(5deg); }
+            80% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .anim22 .johnny-display {
+            animation: shadowPulse 1.5s infinite;
+        }
+
+        @keyframes shadowPulse {
+            0%, 100% {
+                text-shadow: 0 0 5px #ff0000;
+            }
+            50% {
+                text-shadow: 
+                    0 0 20px #ff0000,
+                    0 0 30px #ff0000,
+                    0 0 40px #ff0000,
+                    0 0 50px #ff0000,
+                    0 0 60px #ff0000;
+            }
+        }
+
+        .anim23 .johnny-display span {
+            display: inline-block;
+            animation: rubberBand 1.5s infinite;
+        }
+
+        @keyframes rubberBand {
+            0%, 100% { transform: scale(1); }
+            30% { transform: scaleX(1.25) scaleY(0.75); }
+            40% { transform: scaleX(0.75) scaleY(1.25); }
+            50% { transform: scaleX(1.15) scaleY(0.85); }
+            65% { transform: scaleX(0.95) scaleY(1.05); }
+            75% { transform: scaleX(1.05) scaleY(0.95); }
+        }
+
+        .anim24 .johnny-display {
+            animation: skewAnim 2s infinite;
+        }
+
+        @keyframes skewAnim {
+            0%, 100% { transform: skew(0deg); }
+            25% { transform: skew(10deg); }
+            50% { transform: skew(0deg); }
+            75% { transform: skew(-10deg); }
+        }
+
+        .anim25 .johnny-display span {
+            display: inline-block;
+            animation: zoomRotate 2s infinite;
+        }
+        .anim25 .johnny-display span:nth-child(1) { animation-delay: 0s; }
+        .anim25 .johnny-display span:nth-child(2) { animation-delay: 0.2s; }
+        .anim25 .johnny-display span:nth-child(3) { animation-delay: 0.4s; }
+        .anim25 .johnny-display span:nth-child(4) { animation-delay: 0.6s; }
+        .anim25 .johnny-display span:nth-child(5) { animation-delay: 0.8s; }
+        .anim25 .johnny-display span:nth-child(6) { animation-delay: 1s; }
+
+        @keyframes zoomRotate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(2) rotate(180deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="intro-screen">
+        <div id="alphabet-container"></div>
+        <button id="enter-button">View Website</button>
+    </div>
+
+    <div id="main-content">
+        <h1>JOHNNY</h1>
+        <div id="grid-container">
+            <button class="anim-button" data-anim="1"><span>Glitch Matrix</span></button>
+            <button class="anim-button" data-anim="2"><span>Neon Pulse</span></button>
+            <button class="anim-button" data-anim="3"><span>Wave Motion</span></button>
+            <button class="anim-button" data-anim="4"><span>Spin Cycle</span></button>
+            <button class="anim-button" data-anim="5"><span>Heartbeat Scale</span></button>
+            <button class="anim-button" data-anim="6"><span>Bounce Letters</span></button>
+            <button class="anim-button" data-anim="7"><span>Ghost Fade</span></button>
+            <button class="anim-button" data-anim="8"><span>Left Slide In</span></button>
+            <button class="anim-button" data-anim="9"><span>Right Slide In</span></button>
+            <button class="anim-button" data-anim="10"><span>Flip Card</span></button>
+            <button class="anim-button" data-anim="11"><span>Earthquake</span></button>
+            <button class="anim-button" data-anim="12"><span>Color Spectrum</span></button>
+            <button class="anim-button" data-anim="13"><span>Explosion</span></button>
+            <button class="anim-button" data-anim="14"><span>Letter Tornado</span></button>
+            <button class="anim-button" data-anim="15"><span>Gradient Flow</span></button>
+            <button class="anim-button" data-anim="16"><span>Cascade Flip</span></button>
+            <button class="anim-button" data-anim="17"><span>Neon Flicker</span></button>
+            <button class="anim-button" data-anim="18"><span>3D Rotation</span></button>
+            <button class="anim-button" data-anim="19"><span>Rainbow Wave</span></button>
+            <button class="anim-button" data-anim="20"><span>Static Glitch</span></button>
+            <button class="anim-button" data-anim="21"><span>Pendulum Swing</span></button>
+            <button class="anim-button" data-anim="22"><span>Shadow Burst</span></button>
+            <button class="anim-button" data-anim="23"><span>Rubber Band</span></button>
+            <button class="anim-button" data-anim="24"><span>Skew Shift</span></button>
+            <button class="anim-button" data-anim="25"><span>Zoom Rotate</span></button>
+        </div>
+    </div>
+
+    <div id="animation-display">
+        <button id="back-button">Back to Grid</button>
+        <div id="anim-content"></div>
+    </div>
+
+    <script>
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const targetLetters = 'JOHNNY';
+        const alphabetContainer = document.getElementById('alphabet-container');
+        const enterButton = document.getElementById('enter-button');
+        const introScreen = document.getElementById('intro-screen');
+        const mainContent = document.getElementById('main-content');
+        const animationDisplay = document.getElementById('animation-display');
+        const backButton = document.getElementById('back-button');
+        const animContent = document.getElementById('anim-content');
+
+        alphabet.split('').forEach(letter => {
+            const span = document.createElement('span');
+            span.textContent = letter;
+            alphabetContainer.appendChild(span);
+        });
+
+        let currentIndex = 0;
+        const letters = alphabetContainer.querySelectorAll('span');
+        
+        function highlightNextLetter() {
+            if (currentIndex < targetLetters.length) {
+                const targetLetter = targetLetters[currentIndex];
+                const letterIndex = alphabet.indexOf(targetLetter);
+                letters[letterIndex].classList.add('highlight');
+                currentIndex++;
+                setTimeout(highlightNextLetter, 300);
+            } else {
+                setTimeout(() => {
+                    enterButton.classList.add('show');
+                }, 500);
+            }
+        }
+
+        setTimeout(highlightNextLetter, 500);
+
+        enterButton.addEventListener('click', () => {
+            introScreen.style.transition = 'opacity 1s ease';
+            introScreen.style.opacity = '0';
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                mainContent.classList.add('active');
+                mainContent.style.opacity = '0';
+                setTimeout(() => {
+                    mainContent.style.transition = 'opacity 1s ease';
+                    mainContent.style.opacity = '1';
+                }, 50);
+            }, 1000);
+        });
+
+        document.querySelectorAll('.anim-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const animNumber = button.getAttribute('data-anim');
+                showAnimation(animNumber);
+            });
+        });
+
+        function showAnimation(num) {
+            animContent.innerHTML = '';
+            animContent.className = `anim${num}`;
+            
+            const johnnyDiv = document.createElement('div');
+            johnnyDiv.className = 'johnny-display';
+            
+            'JOHNNY'.split('').forEach(letter => {
+                const span = document.createElement('span');
+                span.textContent = letter;
+                johnnyDiv.appendChild(span);
+            });
+            
+            animContent.appendChild(johnnyDiv);
+            
+            mainContent.style.display = 'none';
+            animationDisplay.classList.add('active');
+        }
+
+        backButton.addEventListener('click', () => {
+            animationDisplay.classList.remove('active');
+            mainContent.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
